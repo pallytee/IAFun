@@ -5,9 +5,14 @@ let rightPerson = { x: 0, y: 0 };
 let isActive = false;
 let isFrogActive = false;
 let isTogetherActive = false;
+let isSalsaActive = false;
+let isDancehallActive = false;
+let isTangoActive = false;
 let input;
 let frogs = [];
 const NUM_FROGS = 50;
+let dancehallBeat = 0;
+let tangoPhase = 0;
 
 function setup() {
     let canvas = createCanvas(7680, 742);
@@ -57,15 +62,68 @@ function handleInput() {
             f.vy = random(-10, 10);
         });
         input.value('');
-        input.attribute('placeholder', "Watch the chaos unfold...");
+        input.attribute('placeholder', "Type 'salsa' to dance...");
+    }
+    if (word.includes('salsa')) {
+        isSalsaActive = true;
+        // Add salsa movement patterns
+        particles.forEach(p => {
+            p.salsaMode = true;
+            p.salsaPhase = random(TWO_PI);
+            p.salsaSpeed = random(0.02, 0.05);
+        });
+        frogs.forEach(f => {
+            f.salsaMode = true;
+            f.salsaPhase = random(TWO_PI);
+            f.salsaSpeed = random(0.02, 0.05);
+        });
+        input.value('');
+        input.attribute('placeholder', "Feel the rhythm...");
+    }
+    if (word.includes('tango')) {
+        isTangoActive = true;
+        isDancehallActive = false;
+        isSalsaActive = false;
+        
+        // Pair up mushrooms and frogs for tango
+        for(let i = 0; i < Math.min(particles.length, frogs.length); i++) {
+            particles[i].tangoMode = true;
+            particles[i].tangoPartner = frogs[i];
+            particles[i].tangoPhase = random(TWO_PI);
+            frogs[i].tangoMode = true;
+            frogs[i].tangoPartner = particles[i];
+            frogs[i].tangoPhase = particles[i].tangoPhase;
+        }
+        
+        input.value('');
+        input.attribute('placeholder', "Watch them tango...");
     }
 }
 
 function draw() {
     background(0, 20);
+    tangoPhase += 0.02; // Slow, romantic pace
 
-    if (isTogetherActive) {
-        // Chaotic mode - everything moves freely
+    if (isTangoActive) {
+        // Tango mode
+        for (let i = 0; i < Math.min(particles.length, frogs.length); i++) {
+            particles[i].updateTango();
+            particles[i].display();
+            frogs[i].updateTango();
+            frogs[i].display();
+        }
+    } else if (isSalsaActive) {
+        // Salsa dance mode
+        for (let particle of particles) {
+            particle.updateSalsa();
+            particle.display();
+        }
+        for (let frog of frogs) {
+            frog.updateSalsa();
+            frog.display();
+        }
+    } else if (isTogetherActive) {
+        // Chaotic mode
         for (let particle of particles) {
             particle.updateChaos();
             particle.display();
@@ -75,7 +133,7 @@ function draw() {
             frog.display();
         }
     } else {
-        // Normal mode - split screen
+        // Normal split-screen mode
         if (isActive) {
             leftPerson.x = constrain(mouseX, 0, width/2);
             leftPerson.y = mouseY;
@@ -113,6 +171,15 @@ class Particle {
         this.chaosMode = false;
         this.vx = 0;
         this.vy = 0;
+        this.salsaMode = false;
+        this.salsaPhase = 0;
+        this.salsaSpeed = 0;
+        this.originalX = 0;
+        this.originalY = 0;
+        this.tangoMode = false;
+        this.tangoPartner = null;
+        this.tangoPhase = 0;
+        this.tangoLeading = true;
     }
 
     resetPosition() {
@@ -135,6 +202,47 @@ class Particle {
         // Limit speed
         this.vx = constrain(this.vx, -15, 15);
         this.vy = constrain(this.vy, -15, 15);
+    }
+
+    updateSalsa() {
+        if (!this.originalX) this.originalX = this.x;
+        if (!this.originalY) this.originalY = this.y;
+        
+        // Create figure-8 salsa movement
+        this.salsaPhase += this.salsaSpeed;
+        this.x = this.originalX + sin(this.salsaPhase) * 100;
+        this.y = this.originalY + sin(2 * this.salsaPhase) * 50;
+    }
+
+    updateTango() {
+        if (!this.originalX) this.originalX = this.x;
+        if (!this.originalY) this.originalY = this.y;
+
+        // Create elegant tango movements
+        this.tangoPhase += 0.02;
+        
+        // Figure-8 pattern with dramatic pauses
+        let progress = this.tangoPhase % TWO_PI;
+        let pause = sin(progress * 2) < 0.2; // Create dramatic pauses
+        
+        if (!pause) {
+            // Lead dancer movement
+            let radius = 100;
+            let figure8X = sin(progress) * radius;
+            let figure8Y = sin(2 * progress) * radius/2;
+            
+            this.x = this.originalX + figure8X;
+            this.y = this.originalY + figure8Y;
+            
+            // Partner follows with slight delay
+            if (this.tangoPartner) {
+                this.tangoPartner.x = this.x - figure8X * 0.5;
+                this.tangoPartner.y = this.y - figure8Y * 0.5;
+            }
+        }
+        
+        // Add slight rotation during movement
+        this.rotation = sin(this.tangoPhase) * 0.2;
     }
 
     update() {
@@ -190,6 +298,15 @@ class Frog {
         this.chaosMode = false;
         this.vx = 0;
         this.vy = 0;
+        this.salsaMode = false;
+        this.salsaPhase = 0;
+        this.salsaSpeed = 0;
+        this.originalX = 0;
+        this.originalY = 0;
+        this.tangoMode = false;
+        this.tangoPartner = null;
+        this.tangoPhase = 0;
+        this.tangoLeading = false;
     }
 
     reset() {
@@ -214,6 +331,26 @@ class Frog {
         // Limit speed
         this.vx = constrain(this.vx, -15, 15);
         this.vy = constrain(this.vy, -15, 15);
+    }
+
+    updateSalsa() {
+        if (!this.originalX) this.originalX = this.x;
+        if (!this.originalY) this.originalY = this.y;
+        
+        // Create salsa spin movement
+        this.salsaPhase += this.salsaSpeed;
+        this.x = this.originalX + cos(this.salsaPhase) * 75;
+        this.y = this.originalY + sin(this.salsaPhase) * 75;
+    }
+
+    updateTango() {
+        if (!this.originalX) this.originalX = this.x;
+        if (!this.originalY) this.originalY = this.y;
+        
+        // Follower movement is handled by leader
+        if (!this.tangoLeading) {
+            this.rotation = -sin(this.tangoPhase) * 0.2; // Counter-rotation to partner
+        }
     }
 
     update() {
