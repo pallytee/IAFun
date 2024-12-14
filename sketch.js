@@ -50,6 +50,7 @@ function handleInput() {
     }
     if (word.includes('together')) {
         isTogetherActive = true;
+        // Give particles and frogs random velocities
         particles.forEach(p => {
             p.chaosMode = true;
             p.vx = random(-10, 10);
@@ -65,12 +66,9 @@ function handleInput() {
     }
     if (word.includes('salsa')) {
         isSalsaActive = true;
-        isDancehallActive = false;
-        isTangoActive = false;
+        // Add salsa movement patterns
         particles.forEach(p => {
             p.salsaMode = true;
-            p.dancehallMode = false;
-            p.tangoMode = false;
             p.salsaPhase = random(TWO_PI);
             p.salsaSpeed = random(0.02, 0.05);
         });
@@ -104,6 +102,7 @@ function handleInput() {
 
 function draw() {
     background(0, 20);
+    dancehallBeat += 0.1; // Control the beat speed
     tangoPhase += 0.02; // Slow, romantic pace
 
     if (isTangoActive) {
@@ -113,6 +112,16 @@ function draw() {
             particles[i].display();
             frogs[i].updateTango();
             frogs[i].display();
+        }
+    } else if (isDancehallActive) {
+        // Dancehall mode
+        for (let particle of particles) {
+            particle.updateDancehall();
+            particle.display();
+        }
+        for (let frog of frogs) {
+            frog.updateDancehall();
+            frog.display();
         }
     } else if (isSalsaActive) {
         // Salsa dance mode
@@ -182,6 +191,9 @@ class Particle {
         this.tangoPartner = null;
         this.tangoPhase = 0;
         this.tangoLeading = true;
+        this.dancehallMode = false;
+        this.dancehallPhase = 0;
+        this.dancehallAmplitude = random(30, 80);
     }
 
     resetPosition() {
@@ -247,6 +259,22 @@ class Particle {
         this.rotation = sin(this.tangoPhase) * 0.2;
     }
 
+    updateDancehall() {
+        if (!this.originalX) this.originalX = this.x;
+        if (!this.originalY) this.originalY = this.y;
+
+        // Create energetic dancehall movements
+        this.dancehallPhase += 0.1;
+        let bounce = abs(sin(dancehallBeat)) * this.dancehallAmplitude;
+        let shake = cos(this.dancehallPhase * 2) * 20;
+        
+        this.x = this.originalX + shake;
+        this.y = this.originalY - bounce;
+        
+        // Add some rotation to the display
+        this.rotation = sin(this.dancehallPhase) * 0.3;
+    }
+
     update() {
         if (!this.chaosMode) {
             let dLeft = dist(this.x, this.y, leftPerson.x, leftPerson.y);
@@ -309,6 +337,9 @@ class Frog {
         this.tangoPartner = null;
         this.tangoPhase = 0;
         this.tangoLeading = false;
+        this.dancehallMode = false;
+        this.dancehallPhase = 0;
+        this.dancehallAmplitude = random(50, 100);
     }
 
     reset() {
@@ -353,6 +384,22 @@ class Frog {
         if (!this.tangoLeading) {
             this.rotation = -sin(this.tangoPhase) * 0.2; // Counter-rotation to partner
         }
+    }
+
+    updateDancehall() {
+        if (!this.originalX) this.originalX = this.x;
+        if (!this.originalY) this.originalY = this.y;
+
+        // Create more aggressive dancehall movements for frogs
+        this.dancehallPhase += 0.15;
+        let bounce = abs(sin(dancehallBeat * 1.5)) * this.dancehallAmplitude;
+        let shake = cos(this.dancehallPhase * 3) * 30;
+        
+        this.x = this.originalX + shake;
+        this.y = this.originalY - bounce;
+        
+        // Add some scaling effect
+        this.scale = 1 + sin(this.dancehallPhase) * 0.2;
     }
 
     update() {
