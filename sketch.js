@@ -50,7 +50,6 @@ function handleInput() {
     }
     if (word.includes('together')) {
         isTogetherActive = true;
-        // Give particles and frogs random velocities
         particles.forEach(p => {
             p.chaosMode = true;
             p.vx = random(-10, 10);
@@ -66,9 +65,12 @@ function handleInput() {
     }
     if (word.includes('salsa')) {
         isSalsaActive = true;
-        // Add salsa movement patterns
+        isDancehallActive = false;
+        isTangoActive = false;
         particles.forEach(p => {
             p.salsaMode = true;
+            p.dancehallMode = false;
+            p.tangoMode = false;
             p.salsaPhase = random(TWO_PI);
             p.salsaSpeed = random(0.02, 0.05);
         });
