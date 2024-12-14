@@ -1,0 +1,69 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: 'Press Start 2P', cursive;
+}
+
+#p5-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+canvas {
+    display: block;
+}
+
+.input-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    width: 80%;
+    max-width: 800px;
+    text-align: center;
+}
+
+#word-input {
+    width: 100%;
+    padding: 30px;
+    font-size: 3em;
+    background: rgba(0, 0, 0, 0.8);
+    border: 4px solid #4CAF50;
+    color: #fff;
+    text-align: center;
+    outline: none;
+    font-family: 'Press Start 2P', cursive;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 20px;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+#word-input:focus {
+    background: rgba(0, 0, 0, 0.9);
+    border-color: #fff;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+}
+
+#word-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.prompt-text {
+    color: #fff;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
