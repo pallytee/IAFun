@@ -66,31 +66,73 @@ function handleInput() {
     }
     if (word.includes('salsa')) {
         isSalsaActive = true;
+        isDancehallActive = false;
+        isTangoActive = false;
+        isTogetherActive = false;
         // Add salsa movement patterns
         particles.forEach(p => {
             p.salsaMode = true;
+            p.chaosMode = false;
+            p.dancehallMode = false;
+            p.tangoMode = false;
             p.salsaPhase = random(TWO_PI);
             p.salsaSpeed = random(0.02, 0.05);
         });
         frogs.forEach(f => {
             f.salsaMode = true;
+            f.chaosMode = false;
+            f.dancehallMode = false;
+            f.tangoMode = false;
             f.salsaPhase = random(TWO_PI);
             f.salsaSpeed = random(0.02, 0.05);
         });
         input.value('');
-        input.attribute('placeholder', "Feel the rhythm...");
+        input.attribute('placeholder', "Type 'dancehall' to change the beat...");
+    }
+    if (word.includes('dancehall')) {
+        isDancehallActive = true;
+        isSalsaActive = false;
+        isTangoActive = false;
+        isTogetherActive = false;
+        // Add dancehall movement patterns
+        particles.forEach(p => {
+            p.dancehallMode = true;
+            p.salsaMode = false;
+            p.chaosMode = false;
+            p.tangoMode = false;
+            p.dancehallPhase = random(TWO_PI);
+            p.dancehallAmplitude = random(30, 80);
+        });
+        frogs.forEach(f => {
+            f.dancehallMode = true;
+            f.salsaMode = false;
+            f.chaosMode = false;
+            f.tangoMode = false;
+            f.dancehallPhase = random(TWO_PI);
+            f.dancehallAmplitude = random(50, 100);
+        });
+        input.value('');
+        input.attribute('placeholder', "Type 'tango' for a romantic dance...");
     }
     if (word.includes('tango')) {
         isTangoActive = true;
         isDancehallActive = false;
         isSalsaActive = false;
+        isTogetherActive = false;
         
         // Pair up mushrooms and frogs for tango
         for(let i = 0; i < Math.min(particles.length, frogs.length); i++) {
             particles[i].tangoMode = true;
+            particles[i].salsaMode = false;
+            particles[i].chaosMode = false;
+            particles[i].dancehallMode = false;
             particles[i].tangoPartner = frogs[i];
             particles[i].tangoPhase = random(TWO_PI);
+            
             frogs[i].tangoMode = true;
+            frogs[i].salsaMode = false;
+            frogs[i].chaosMode = false;
+            frogs[i].dancehallMode = false;
             frogs[i].tangoPartner = particles[i];
             frogs[i].tangoPhase = particles[i].tangoPhase;
         }
